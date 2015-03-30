@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.util.Random;
 
 public class ScorePlus extends Item {
@@ -15,7 +16,7 @@ public class ScorePlus extends Item {
 		Random r =  new Random();
 		appletInfo.setScore(appletInfo.getScore()+ r.nextInt(2000)+500);
 		}
-	public void paint(Graaphics g){
+	public void paint(Graphics g){
 		g.setColor(Color.BLUE);
 		super.paint(g);
 	}
