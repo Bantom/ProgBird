@@ -8,6 +8,15 @@ public class Item {
 	
 	private int x, y, dx, radius;
 	private StartingPoint sp;
+	private boolean createNew = false;
+	
+	public void setCreateNew(boolean createNew) {
+		this.createNew = createNew;
+	}
+	
+	public boolean isCreateNew(){
+		return createNew;
+	}
 	
 	public Item(int x) {
 		this.x = x;
@@ -39,8 +48,7 @@ public class Item {
 		this.sp = sp;
 		checkForCollision(b);
 		if (x < 0 - radius){
-			Random r = new Random();
-			x = sp.getWidth() + 2000 + r.nextInt(300);
+			createNew = true;
 		}
 	}
 	
@@ -57,8 +65,7 @@ public class Item {
 		
 		if( c < collide ){
 			performAction(b);
-			x = 0;
-			y = sp.getHeight() + 100;
+			createNew = true;
 		}
 	}
 

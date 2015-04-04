@@ -17,15 +17,18 @@ public class Fox {
 		dx = 1;
 	}
 	
-	public void update(StartingPoint sp, Ball b){
+	public void update(StartingPoint sp, Ball b) throws CastomException{
 		int ballX = b.getX();
 		int ballY = b.getY();
 		int radius = b.getRadius();
+		if((ballX < 0 || ballX > 800)){
+			throw new CastomException();                                                     			
+		}else{
+			if(ballY == 600 - radius - 1){
+				dx = 5;
+				x = ballX;
 		
-		if(ballY == 600 - radius - 1){
-			dx = 5;
-			x = ballX;
-	
+			}
 		}
 		
 	}

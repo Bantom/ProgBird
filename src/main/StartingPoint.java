@@ -108,22 +108,27 @@ public class StartingPoint extends Applet implements Runnable, KeyListener{
 		g.drawString(s, getWidth() -150, 50);
 	}
 	
+	
+
+
+		
 	public void run(){
 		while(true){
 			b.update(this);
 			
 			score ++;
 			
-			try{
+
+			try {
 				fox.update(this, b);
-			}catch( Exception e){
-				System.out.println("We can not find fox." + "Error:" + e.getMessage());
+			} catch (CastomException e) {
+				e.printStackTrace();
 			}
-			
-			Random r = new Random();
+
+				Random r = new Random();
 			
 			for( int i = 0 ; i < item.length; i++){
-				if(item[i].getY() == this.getHeight() + 100){
+				if(item[i].isCreateNew()){
 					item[i] = null;
 					switch (r.nextInt(5)){
 					case 0:
@@ -142,7 +147,7 @@ public class StartingPoint extends Applet implements Runnable, KeyListener{
 						item[i] = new ScorePlus(getWidth()+ 10*r.nextInt(500), this);
 						break;
 					}
-					
+					item[i].setCreateNew(false);
 				}
 			}
 			
