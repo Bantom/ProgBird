@@ -121,7 +121,7 @@ public class StartingPoint extends Applet implements Runnable, KeyListener{
 
 			try {
 				fox.update(this, b);
-			} catch (CastomException e) {
+			} catch (CannotFindFoxException e) {
 				e.printStackTrace();
 			}
 
