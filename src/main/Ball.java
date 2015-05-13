@@ -2,6 +2,8 @@ package main;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.net.URL;
 
 public class Ball {
 	private double gravity = 15;
@@ -16,10 +18,14 @@ public class Ball {
 	private int radius = 20;
 	private int agility = 3;
 	private int maxSpeed = 20;
+	private boolean game_over = false;
+	URL url;
+	Image bird;
 	
 	public Ball(int i, int j) {
 		x = i;
 		y = j;
+		bird = PicturesBird.bird;
 	}
 	
 	public void setAgility(int agility) {
@@ -51,6 +57,7 @@ public class Ball {
 	}
 	
 	public Ball(){
+		bird = PicturesBird.bird;
 	}
 	
 	public int getX() {
@@ -124,10 +131,8 @@ public class Ball {
 			}
 		}
 
-		if( y > sp.getHeight() - radius -1){
-			y = sp.getHeight() - radius -1;
-			dy *= energyloss;
-			dy= gameDy;
+		if( y-200 > sp.getHeight() - radius -1){
+			game_over = true;
 		}else{
 			dy += gravity *dt;
 			y += dy*dt + .5*gravity*dt*dt;
@@ -135,7 +140,11 @@ public class Ball {
 	}
 	
 	public void paint(Graphics g){
-		g.setColor(Color.GREEN);
-		g.fillOval(x-radius ,y-radius , radius*2, radius*2);
+		g.drawImage(bird,x , y, PicturesBird.sp);
+		
+	}
+
+	public boolean getGameOver() {
+		return game_over;
 	}
 }

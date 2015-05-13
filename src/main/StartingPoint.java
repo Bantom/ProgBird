@@ -6,9 +6,13 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.net.URL;
 import java.util.Random;
 
-public class StartingPoint extends Applet implements Runnable, KeyListener{
+public class StartingPoint extends Applet implements Runnable, KeyListener, MouseMotionListener, MouseListener{
 
 
 	private Image i;
@@ -18,6 +22,13 @@ public class StartingPoint extends Applet implements Runnable, KeyListener{
 	Item item[] = new Item[3];
 	Fox fox;
 	private int score;
+	double cityX = 0;
+	double cityDx = .3;
+	URL url;
+	Image city;
+	int levelcheck = 0;
+	boolean gameOver = false;
+	boolean mouseIn = false;
 	
 	public int getScore() {
 		return score;
@@ -30,36 +41,49 @@ public class StartingPoint extends Applet implements Runnable, KeyListener{
 	public void init(){
 		setSize(800,600);
 		addKeyListener(this);
+		addMouseMotionListener(this);
+		addMouseListener(this);
+		try{
+			url = getDocumentBase();
+		}catch(Exception e){
+			
+		}
+		city = getImage(url, "main/images/Background.png");
+		Pictures p = new Pictures(this);
+		PicturesBird a = new PicturesBird(this);
+		PicturesFox k = new PicturesFox(this);
 	}
 	
 	public void start(){
 		b = new Ball();
 		score = 0;
 		for (int i =0; i < p.length; i++){
-			Random r = new Random();
-			p[i] = new Platform(getWidth() + 200*i, getHeight() - 40 - r.nextInt(400));
+			p[i] = new Platform(i*120, 300);
 		}
+		
 		for (int i =0; i < item.length; i++){
 			Random r = new Random();
-			switch (r.nextInt(5)){
+			switch (r.nextInt(4)){
 			case 0:
 				item[i] = new GravUp(getWidth() + 2000*i);
 				break;
 			case 1:
 				item[i] = new GravDown(getWidth() + 2000*i);
 				break;
-			case 3:
+			case 2:
 				item[i] = new AgilUp(getWidth() + 2000*i);
 				break;
-			case 4:
+			case 3:
 				item[i] = new AgilDown(getWidth() + 2000*i);
 				break;
-			case 5:
+			case 4:
 				item[i] = new ScorePlus(getWidth() + 2000*i, this);
+				break;
+			default:
 				break;
 			}
 		}
-		fox = new Fox(30,550);
+		fox = new Fox();
 		Thread thread =  new Thread(this);
 		thread.start();
 
@@ -89,15 +113,18 @@ public class StartingPoint extends Applet implements Runnable, KeyListener{
 	}
 	
 	public void paint(Graphics g){
+		g.drawImage(city, (int) cityX, 0, this);
+		g.drawImage(city, (int) cityX + getWidth(), 0, this);
+		
 		b.paint(g);
-			fox.paint(g);
+		fox.paint(g);
 		for(int i=0; i<p.length; i++){
 			p[i].paint(g);
-			
-			for(int i1=0; i1<item.length; i1++){
-				item[i1].paint(g);
-				}
 		}
+			for(int w=0; w<item.length; w++){
+				item[w].paint(g);
+				}
+
 		
 		String s = Integer.toString(score);
 		Font font = new Font("Serif", Font.BOLD, 32);
@@ -106,6 +133,18 @@ public class StartingPoint extends Applet implements Runnable, KeyListener{
 		g.drawString(s, getWidth() -150+2, 50+2);
 		g.setColor(new Color(198,226,255));;
 		g.drawString(s, getWidth() -150, 50);
+		if(gameOver){
+			g.setColor(Color.RED);
+			g.drawString("GAME OVER",300,300);
+			g.drawRect(280, 320, 180, 40);
+			if(mouseIn){
+				g.setColor(Color.RED);
+				g.drawString("Play again?",280,340);
+			}else{
+				g.setColor(Color.GREEN);
+				g.drawString("Play again?",280,340);
+			}
+		}
 	}
 	
 	
@@ -114,10 +153,37 @@ public class StartingPoint extends Applet implements Runnable, KeyListener{
 		
 	public void run(){
 		while(true){
+			
+			for(int i =0; i < p.length; i++){
+				int testx = p[i].getX();
+				if(testx < 0 - p[i].getWidth()){
+					Random r = new Random();
+					int fakei = i;
+					if( i == 0){
+						fakei = p.length;
+					}
+					p[i].setX(p[fakei-1].getX() + p[i].getWidth() + Pictures.level * r.nextInt(25));
+				}
+			}
+			gameOver = b.getGameOver();
+			
+			if(levelcheck>100){
+				Pictures.level++;
+				levelcheck = 0;
+			}
+			
+			levelcheck++;
 			b.update(this);
 			
-			score ++;
+			if(cityX > getWidth() * -1){
+				cityX -= cityDx;
+			}else{
+				cityX = 0;
+			}
 			
+			if(!gameOver){
+				score ++;
+			}
 
 			try {
 				fox.update(this, b);
@@ -129,22 +195,24 @@ public class StartingPoint extends Applet implements Runnable, KeyListener{
 			
 			for( int i = 0 ; i < item.length; i++){
 				if(item[i].isCreateNew()){
-					item[i] = null;
-					switch (r.nextInt(5)){
+					//item[i] = null;
+					switch (r.nextInt(4)){
 					case 0:
 						item[i] = new GravUp(getWidth() + 10*r.nextInt(500));
 						break;
 					case 1:
 						item[i] = new GravDown(getWidth()+ 10*r.nextInt(500));
 						break;
-					case 3:
+					case 2:
 						item[i] = new AgilUp(getWidth()+ 10*r.nextInt(500));
 						break;
-					case 4:
+					case 3:
 						item[i] = new AgilDown(getWidth()+ 10*r.nextInt(500));
 						break;
-					case 5:
+					case 4:
 						item[i] = new ScorePlus(getWidth()+ 10*r.nextInt(500), this);
+						break;
+					default:
 						break;
 					}
 					item[i].setCreateNew(false);
@@ -190,6 +258,89 @@ public class StartingPoint extends Applet implements Runnable, KeyListener{
 	@Override
 	public void keyTyped(KeyEvent e) {
 		
+		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+				
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		if(gameOver){
+		if(e.getX() > 280 && e.getX() < 460){
+			if(e.getY()> 320 && e.getY() < 360){
+				mouseIn = true;
+			}
+		}
+		if(e.getX() < 280 || e.getX() > 460){
+				mouseIn = false;
+		}
+		if(e.getY() < 320 || e.getY() > 360){
+			mouseIn = false;
+		}
+	}
+	}
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		if(mouseIn){
+			b = null;
+			b = new Ball();
+			fox = null;
+			fox = new Fox();
+			score = 0;
+			Pictures.level = 1;
+			for (int i =0; i < p.length; i++){
+				p[i] = new Platform(i*120, 300);
+			}
+			
+			for (int i =0; i < item.length; i++){
+				Random r = new Random();
+				switch (r.nextInt(5)){
+				case 0:
+					item[i] = new GravUp(getWidth() + 2000*i);
+					break;
+				case 1:
+					item[i] = new GravDown(getWidth() + 2000*i);
+					break;
+				case 3:
+					item[i] = new AgilUp(getWidth() + 2000*i);
+					break;
+				case 4:
+					item[i] = new AgilDown(getWidth() + 2000*i);
+					break;
+				case 5:
+					item[i] = new ScorePlus(getWidth() + 2000*i, this);
+					break;
+				}
+			}
+			mouseIn = false;
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 }
