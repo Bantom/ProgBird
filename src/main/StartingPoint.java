@@ -1,5 +1,6 @@
 package main;
 import java.applet.Applet;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Color;
@@ -10,6 +11,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class StartingPoint extends Applet implements Runnable, KeyListener, MouseMotionListener, MouseListener{
@@ -21,7 +24,7 @@ public class StartingPoint extends Applet implements Runnable, KeyListener, Mous
 	Platform p[] = new Platform[7];
 	Item item[] = new Item[3];
 	Fox fox;
-	private int score;
+	public int score;
 	double cityX = 0;
 	double cityDx = .3;
 	URL url;
@@ -29,7 +32,8 @@ public class StartingPoint extends Applet implements Runnable, KeyListener, Mous
 	int levelcheck = 0;
 	boolean gameOver = false;
 	boolean mouseIn = false;
-	
+	boolean resShown = false;
+    	
 	public int getScore() {
 		return score;
 	}
@@ -166,7 +170,7 @@ public class StartingPoint extends Applet implements Runnable, KeyListener, Mous
 				}
 			}
 			gameOver = b.getGameOver();
-			
+						
 			if(levelcheck>100){
 				Pictures.level++;
 				levelcheck = 0;
@@ -184,6 +188,22 @@ public class StartingPoint extends Applet implements Runnable, KeyListener, Mous
 			if(!gameOver){
 				score ++;
 			}
+			
+			if(gameOver && !resShown){
+				resShown=true;
+		        EventQueue.invokeLater(new Runnable() {
+		            public void run() {
+		                try {
+		                	NickNameForm frame = new NickNameForm(score);
+		                    frame.setTitle("Please,enter your nickname");
+		                    frame.setVisible(true);
+		                } catch (Exception e) {
+		                    e.printStackTrace();
+		                }
+		            }
+		        });
+	        
+			}
 
 			try {
 				fox.update(this, b);
@@ -195,7 +215,6 @@ public class StartingPoint extends Applet implements Runnable, KeyListener, Mous
 			
 			for( int i = 0 ; i < item.length; i++){
 				if(item[i].isCreateNew()){
-					//item[i] = null;
 					switch (r.nextInt(4)){
 					case 0:
 						item[i] = new GravUp(getWidth() + 10*r.nextInt(500));
@@ -284,7 +303,6 @@ public class StartingPoint extends Applet implements Runnable, KeyListener, Mous
 	}
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 		if(mouseIn){
 			b = null;
 			b = new Ball();
@@ -317,6 +335,7 @@ public class StartingPoint extends Applet implements Runnable, KeyListener, Mous
 				}
 			}
 			mouseIn = false;
+			resShown = false;
 		}
 	}
 
